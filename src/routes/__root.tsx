@@ -8,11 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import appCss from "../styles.css?url";
 import { SessionProvider } from "../lib/session";
-import { fetchSettings } from "../lib/api";
 import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
@@ -125,11 +123,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  const { data: settings } = useQuery({
-    queryKey: ["settings"],
-    queryFn: fetchSettings,
-  });
-
   useEffect(() => {
     const handler = (e: ErrorEvent) => {
       if (e.message?.includes("startTime")) e.stopImmediatePropagation();
@@ -137,18 +130,6 @@ function RootComponent() {
     window.addEventListener("error", handler, true);
     return () => window.removeEventListener("error", handler, true);
   }, []);
-
-  useEffect(() => {
-    if (settings?.faviconUrl) {
-      let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = settings.faviconUrl;
-    }
-  }, [settings?.faviconUrl]);
 
   return (
     <QueryClientProvider client={queryClient}>
