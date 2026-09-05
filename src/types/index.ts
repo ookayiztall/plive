@@ -86,4 +86,5 @@ export interface SiteSettings {
   telegramUsername: string;
   logoUrl: string | null;
   faviconUrl: string | null;
+  homepageOrder: string[];
 }

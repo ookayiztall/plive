@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ImageUp } from "lucide-react";
+import { ImageUp, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   );
 }
+
+const sectionLabels: Record<string, string> = {
+  hero: "Hero / Featured",
+  categories: "Categories",
+  online: "Online Now",
+  featured: "Featured Matches",
+  channels: "24/7 Live",
+};
 
 function AdminSettings() {
   const queryClient = useQueryClient();
@@ -253,6 +261,59 @@ function AdminSettings() {
               onChange={(e) => set("telegramUsername", e.target.value)}
             />
             <p className="text-xs text-muted-foreground">Shown on the watch page and footer. Include the @ prefix.</p>
+          </div>
+        </Section>
+
+        <Section title="Homepage layout">
+          <p className="text-xs text-muted-foreground">
+            Drag sections up or down to reorder the homepage. The top section appears first.
+          </p>
+          <div className="mt-3 space-y-2">
+            {form.homepageOrder.map((sectionId, index) => (
+              <div
+                key={sectionId}
+                className="flex items-center gap-3 rounded-md border border-border bg-surface-2/50 px-3 py-2.5"
+              >
+                <GripVertical className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <span className="flex-1 text-sm font-medium capitalize">
+                  {sectionLabels[sectionId] ?? sectionId}
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-7"
+                    disabled={index === 0}
+                    onClick={() => {
+                      const order = [...form.homepageOrder];
+                      const temp = order[index - 1]!;
+                      order[index - 1] = order[index]!;
+                      order[index] = temp;
+                      set("homepageOrder", order);
+                    }}
+                  >
+                    <ChevronUp className="size-3.5" aria-hidden />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-7"
+                    disabled={index === form.homepageOrder.length - 1}
+                    onClick={() => {
+                      const order = [...form.homepageOrder];
+                      const temp = order[index]!;
+                      order[index] = order[index + 1]!;
+                      order[index + 1] = temp;
+                      set("homepageOrder", order);
+                    }}
+                  >
+                    <ChevronDown className="size-3.5" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </Section>
 

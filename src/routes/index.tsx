@@ -11,8 +11,7 @@ import { EventSection } from "@/components/streams/EventSection";
 import { EventCarousel } from "@/components/streams/EventCarousel";
 import { EmptyState } from "@/components/common/EmptyState";
 import { CardGridSkeleton, HeroSkeleton, CategoryRowSkeleton } from "@/components/common/LoadingSkeleton";
-import { fetchCategories } from "@/lib/api";
-import { fetchStreams } from "@/lib/api";
+import { fetchCategories, fetchStreams, fetchSettings } from "@/lib/api";
 import type { FeaturedSlide } from "@/types";
 
 export const Route = createFileRoute("/")({
@@ -45,6 +44,11 @@ function HomePage() {
     queryFn: () => fetchStreams(),
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => fetchSettings(),
+  });
+
   const isLoading = categoriesLoading || streamsLoading;
 
   const liveStreams = streams.filter((s) => s.status === "live" && s.type === "event");
@@ -74,25 +78,29 @@ function HomePage() {
     ),
   }));
 
-  return (
-    <AppLayout>
-      <PageContainer className="py-6">
+  const sectionOrder = settings?.homepageOrder ?? ["hero", "categories", "online", "featured", "channels"];
+
+  const sectionMap: Record<string, React.ReactNode> = {
+    hero: (
+      <PageContainer className="py-6" key="hero">
         {isLoading ? (
           <HeroSkeleton />
         ) : featuredSlides.length > 0 ? (
           <HeroCarousel slides={featuredSlides} />
         ) : null}
       </PageContainer>
-
-      <PageContainer>
+    ),
+    categories: (
+      <PageContainer key="categories">
         {isLoading ? (
           <CategoryRowSkeleton />
         ) : (
           <CategoryCarousel categories={categories.filter((c) => c.isActive)} />
         )}
       </PageContainer>
-
-      <PageContainer className="mt-12 space-y-4">
+    ),
+    online: (
+      <PageContainer className="mt-12 space-y-4" key="online">
         <SectionHeader title="Online Now" subtitle="Live matches based on current match time" />
         {isLoading ? (
           <CardGridSkeleton count={4} />
@@ -110,8 +118,9 @@ function HomePage() {
           </div>
         )}
       </PageContainer>
-
-      <PageContainer className="mt-14 space-y-8">
+    ),
+    featured: (
+      <PageContainer className="mt-14 space-y-8" key="featured">
         <SectionHeader
           title="Featured Matches"
           subtitle="Important live and upcoming matches based on your active leagues"
@@ -123,8 +132,9 @@ function HomePage() {
               <EventSection key={entry.group} title={entry.group} streams={entry.streams} />
             ))}
       </PageContainer>
-
-      <PageContainer className="mt-14 space-y-4">
+    ),
+    channels: (
+      <PageContainer className="mt-14 space-y-4" key="channels">
         <SectionHeader title="24/7 Live" subtitle="Always-on streams available around the clock" />
         {isLoading ? (
           <CardGridSkeleton count={3} />
@@ -138,6 +148,12 @@ function HomePage() {
           </EventCarousel>
         )}
       </PageContainer>
+    ),
+  };
+
+  return (
+    <AppLayout>
+      {sectionOrder.map((id) => sectionMap[id] ?? null)}
     </AppLayout>
   );
 }

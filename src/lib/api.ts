@@ -308,6 +308,7 @@ export async function fetchSettings(): Promise<SiteSettings> {
     telegram_username: string;
     logo_url: string | null;
     favicon_url: string | null;
+    homepage_order: string[] | null;
   } | null;
   return {
     siteName: row?.site_name ?? "PLive",
@@ -321,6 +322,7 @@ export async function fetchSettings(): Promise<SiteSettings> {
     telegramUsername: row?.telegram_username ?? "",
     logoUrl: row?.logo_url ?? null,
     faviconUrl: row?.favicon_url ?? null,
+    homepageOrder: row?.homepage_order ?? ["hero", "categories", "online", "featured", "channels"],
   };
 }
 
@@ -340,6 +342,7 @@ export async function updateSettings(input: SiteSettings) {
         telegram_username: input.telegramUsername,
         logo_url: input.logoUrl,
         favicon_url: input.faviconUrl,
+        homepage_order: input.homepageOrder,
       })
       .eq("id", true)
       .select()

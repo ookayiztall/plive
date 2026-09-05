@@ -12,4 +12,5 @@ export const mockSettings: SiteSettings = {
   telegramUsername: "",
   logoUrl: null,
   faviconUrl: null,
+  homepageOrder: ["hero", "categories", "online", "featured", "channels"],
 };
