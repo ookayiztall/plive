@@ -140,6 +140,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   h1,
@@ -184,6 +185,11 @@
     transform: scale(2.6);
     opacity: 0;
   }
+}
+
+.hero-fullbleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
 
 .hero-zoom {
