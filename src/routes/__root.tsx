@@ -80,6 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "description",
         content: "Watch live sport, browse fixtures and tune into 24/7 sports channels on PLive.",
       },
+      { name: "theme-color", content: "#111827" },
       { property: "og:title", content: "PLive — Live Sports Streaming" },
       {
         property: "og:description",
