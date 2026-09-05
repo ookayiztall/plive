@@ -185,3 +185,35 @@
     opacity: 0;
   }
 }
+
+.hero-fullbleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  border-radius: 20px;
+}
+
+.hero-zoom {
+  animation: hero-zoom-out 7s ease-out forwards;
+}
+
+@keyframes hero-zoom-out {
+  0% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.live-pulse-badge {
+  animation: live-pulse-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes live-pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

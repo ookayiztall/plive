@@ -86,7 +86,9 @@ function HomePage() {
         {isLoading ? (
           <HeroSkeleton />
         ) : featuredSlides.length > 0 ? (
-          <HeroCarousel slides={featuredSlides} />
+          <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+            <HeroCarousel slides={featuredSlides} />
+          </div>
         ) : null}
       </PageContainer>
     ),

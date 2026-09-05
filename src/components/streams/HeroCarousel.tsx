@@ -23,7 +23,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
 
   return (
     <section
-      className="relative h-[320px] overflow-hidden rounded-[20px] border border-border sm:h-[400px]"
+      className="hero-fullbleed relative h-[320px] overflow-hidden rounded-[20px] border border-border sm:h-[400px]"
       aria-roledescription="carousel"
       aria-label="Featured events"
     >
@@ -41,7 +41,10 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
             alt={slide.title}
             width={1600}
             height={900}
-            className="size-full object-cover"
+            className={cn(
+              "size-full object-cover",
+              i === index && "hero-zoom",
+            )}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/25" />
           <div className="absolute inset-0 flex items-center">

@@ -12,7 +12,7 @@ export function LiveBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md bg-live px-2 py-1 text-[11px] font-bold tracking-wide text-live-foreground uppercase",
+        "inline-flex items-center gap-1.5 rounded-full border border-white/14 bg-slate-900/72 px-2.5 py-1 text-[10px] font-[950] tracking-wider text-white/90 uppercase backdrop-blur-[12px] live-pulse-badge",
         className,
       )}
     >
