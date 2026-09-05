@@ -164,6 +164,16 @@ function AdminSettings() {
               />
             </div>
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="telegram">Telegram username</Label>
+            <Input
+              id="telegram"
+              placeholder="@EjadTech1"
+              value={form.telegramUsername}
+              onChange={(e) => set("telegramUsername", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Shown on the watch page and footer. Include the @ prefix.</p>
+          </div>
         </Section>
 
         <Button type="submit" disabled={saveMutation.isPending}>

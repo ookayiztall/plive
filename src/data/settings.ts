@@ -9,4 +9,5 @@ export const mockSettings: SiteSettings = {
   footerCtaText: "Interested to create your own website?",
   footerCtaLabel: "Contact us here",
   footerCtaUrl: "#",
+  telegramUsername: "",
 };

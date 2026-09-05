@@ -290,7 +290,7 @@ export async function duplicateStream(stream: Stream) {
 /* -------------------------------- settings -------------------------------- */
 
 export async function fetchSettings(): Promise<SiteSettings> {
-  const { data, error } = await supabase.from("site_settings").select("*").limit(1).maybeSingle();
+  const { data, error } = await sb.from("site_settings").select("*").limit(1).maybeSingle();
   if (error) throw new Error(error.message);
   const row = data as unknown as {
     site_name: string;
@@ -301,6 +301,7 @@ export async function fetchSettings(): Promise<SiteSettings> {
     footer_cta_text: string;
     footer_cta_label: string;
     footer_cta_url: string;
+    telegram_username: string;
   } | null;
   return {
     siteName: row?.site_name ?? "PLive",
@@ -311,12 +312,13 @@ export async function fetchSettings(): Promise<SiteSettings> {
     footerCtaText: row?.footer_cta_text ?? "",
     footerCtaLabel: row?.footer_cta_label ?? "",
     footerCtaUrl: row?.footer_cta_url ?? "#",
+    telegramUsername: row?.telegram_username ?? "",
   };
 }
 
 export async function updateSettings(input: SiteSettings) {
   unwrap(
-    await supabase
+    await sb
       .from("site_settings")
       .update({
         site_name: input.siteName,
@@ -327,6 +329,7 @@ export async function updateSettings(input: SiteSettings) {
         footer_cta_text: input.footerCtaText,
         footer_cta_label: input.footerCtaLabel,
         footer_cta_url: input.footerCtaUrl,
+        telegram_username: input.telegramUsername,
       })
       .eq("id", true)
       .select()

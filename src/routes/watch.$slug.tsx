@@ -15,7 +15,7 @@ import { Pill } from "@/components/common/badges";
 import { Countdown } from "@/components/common/Countdown";
 import { Button } from "@/components/ui/button";
 import {
-  fetchStreamBySlug, fetchStreams, fetchCategories,
+  fetchStreamBySlug, fetchStreams, fetchCategories, fetchSettings,
   recordWatch, toggleFavorite, fetchFavoriteIds,
 } from "@/lib/api";
 import { formatDateTime, statusLabel } from "@/lib/format";
@@ -75,6 +75,11 @@ function WatchPage() {
     queryKey: ["favoriteIds"],
     queryFn: fetchFavoriteIds,
     enabled: !!user,
+  });
+
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => fetchSettings(),
   });
 
   const [selectedSource, setSelectedSource] = useState("");
@@ -214,9 +219,13 @@ function WatchPage() {
                 <li>· Stream requests</li>
               </ul>
             </div>
-            <Button variant="secondary" className="w-full sm:w-auto">
-              <Send className="size-4" aria-hidden /> Open Telegram
-            </Button>
+            {settings?.telegramUsername && (
+              <Button variant="secondary" className="w-full sm:w-auto" asChild>
+                <a href={`https://t.me/${settings.telegramUsername.replace("@", "")}`} target="_blank" rel="noopener noreferrer">
+                  <Send className="size-4" aria-hidden /> {settings.telegramUsername}
+                </a>
+              </Button>
+            )}
           </div>
         </section>
 
