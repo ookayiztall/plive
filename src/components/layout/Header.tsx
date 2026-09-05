@@ -18,16 +18,20 @@ import { cn } from "@/lib/utils";
 
 const SETTINGS_CACHE_KEY = "plive_settings_cache";
 
+let _cached: { logoUrl?: string; faviconUrl?: string; siteName?: string } | null = null;
 function getCachedSettings(): { logoUrl?: string; faviconUrl?: string; siteName?: string } {
+  if (_cached) return _cached;
   try {
     const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
-    return raw ? JSON.parse(raw) : {};
+    _cached = raw ? JSON.parse(raw) : {};
   } catch {
-    return {};
+    _cached = {};
   }
+  return _cached!;
 }
 
 function cacheSettings(data: { logoUrl?: string; faviconUrl?: string; siteName?: string }) {
+  _cached = data;
   try {
     localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data));
   } catch { /* noop */ }
@@ -58,7 +62,7 @@ function Logo() {
           <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Radio className="size-4" aria-hidden />
           </span>
-          <span className="font-display text-xl font-bold tracking-wide">{siteName}</span>
+          <span className="font-display text-xl font-bold tracking-wide logo-site-text">{siteName}</span>
         </>
       )}
     </Link>

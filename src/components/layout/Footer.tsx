@@ -3,7 +3,16 @@ import { Link } from "@tanstack/react-router";
 import { Send, Radio } from "lucide-react";
 import { fetchCategories, fetchSettings } from "@/lib/api";
 
+const SETTINGS_CACHE_KEY = "plive_settings_cache";
+function getCachedSettings(): { logoUrl?: string; siteName?: string } {
+  try {
+    const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
 export function Footer() {
+  const cached = getCachedSettings();
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: () => fetchCategories(),
@@ -14,20 +23,23 @@ export function Footer() {
     queryFn: () => fetchSettings(),
   });
 
+  const logoUrl = settings?.logoUrl ?? cached.logoUrl ?? null;
+  const siteName = settings?.siteName ?? cached.siteName ?? "PLive";
+
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <footer className="mt-16 border-t border-border bg-surface/40">
       <div className="mx-auto w-full max-w-[1400px] px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          {settings?.logoUrl ? (
-            <img src={settings.logoUrl} alt={settings.siteName || "PLive"} className="h-8 w-auto object-contain" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="h-8 w-auto object-contain" />
           ) : (
             <>
               <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
                 <Radio className="size-4" aria-hidden />
               </span>
-              <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
+              <span className="font-display text-xl font-bold tracking-wide logo-site-text">{siteName}</span>
             </>
           )}
         </div>

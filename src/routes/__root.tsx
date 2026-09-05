@@ -111,6 +111,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var c=JSON.parse(localStorage.getItem("plive_settings_cache")||"{}");if(c.faviconUrl){var l=document.querySelector("link[rel='icon']");if(!l){l=document.createElement("link");l.rel="icon";document.head.appendChild(l);}l.href=c.faviconUrl;}if(c.logoUrl){document.head.insertAdjacentHTML("beforeend","<style>.logo-site-text{display:none!important}</style>");}}catch(e){}`,
+          }}
+        />
       </head>
       <body>
         {children}
