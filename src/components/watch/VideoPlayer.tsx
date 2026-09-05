@@ -22,17 +22,20 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { LiveBadge } from "@/components/common/badges";
 import { cn } from "@/lib/utils";
+import { heartbeatViewer } from "@/lib/api";
 
 export function VideoPlayer({
   posterUrl,
   title,
   isLive,
   streamUrl,
+  streamId,
 }: {
   posterUrl: string;
   title: string;
   isLive: boolean;
   streamUrl: string | null;
+  streamId?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -153,6 +156,14 @@ export function VideoPlayer({
       if (level !== -1) hls.currentLevel = level;
     }
   }, [quality]);
+
+  // Viewer heartbeat: send every 20s while playing
+  useEffect(() => {
+    if (!streamId || !isLive || !playing) return;
+    heartbeatViewer(streamId).catch(() => {});
+    const id = setInterval(() => heartbeatViewer(streamId).catch(() => {}), 20_000);
+    return () => clearInterval(id);
+  }, [streamId, isLive, playing]);
 
   const toggleFullscreen = () => {
     const node = containerRef.current;

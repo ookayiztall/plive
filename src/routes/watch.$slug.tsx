@@ -16,7 +16,7 @@ import { Countdown } from "@/components/common/Countdown";
 import { Button } from "@/components/ui/button";
 import {
   fetchStreamBySlug, fetchStreams, fetchCategories, fetchSettings,
-  recordWatch, toggleFavorite, fetchFavoriteIds,
+  recordWatch, toggleFavorite, fetchFavoriteIds, fetchViewerCount,
 } from "@/lib/api";
 import { formatDateTime, statusLabel } from "@/lib/format";
 import { useSession } from "@/lib/session";
@@ -84,6 +84,13 @@ function WatchPage() {
 
   const [selectedSource, setSelectedSource] = useState("");
 
+  const { data: viewerCount } = useQuery({
+    queryKey: ["viewerCount", stream?.id],
+    queryFn: () => fetchViewerCount(stream!.id),
+    enabled: !!stream?.id && stream.status === "live",
+    refetchInterval: 20_000,
+  });
+
   const category = categories.find((c) => c.id === stream?.categoryId);
   const sources = stream?.sources.filter((source) => source.isActive) ?? [];
 
@@ -140,6 +147,7 @@ function WatchPage() {
           title={stream.title}
           isLive={isLive}
           streamUrl={sources.find((s) => s.id === selectedSource)?.url ?? null}
+          streamId={stream.id}
         />
 
         <div className="mt-6 border-b border-border pb-8">
@@ -165,14 +173,12 @@ function WatchPage() {
                 <Countdown targetIso={stream.startsAt} />
               </span>
             )}
-            {/* Viewer count hidden — enable when real-time tracking is implemented
-            {stream.viewers !== null && (
+            {isLive && viewerCount !== undefined && viewerCount > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
                 <Users className="size-3.5" aria-hidden />
-                {stream.viewers} watching
+                {viewerCount} watching
               </span>
             )}
-            */}
             {user && (
               <Button
                 variant="secondary"

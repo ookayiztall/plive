@@ -510,3 +510,35 @@ export async function fetchFavorites(): Promise<Stream[]> {
   }>;
   return rows.map((r) => mapStream({ ...r.streams, stream_sources: r.streams.stream_sources ?? [] }));
 }
+
+/* ----------------------------- viewer tracking ----------------------------- */
+
+function getViewerId(): string {
+  const key = "plive_viewer_id";
+  let id = sessionStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(key, id);
+  }
+  return id;
+}
+
+export async function heartbeatViewer(streamId: string) {
+  const viewerId = getViewerId();
+  await sb
+    .from("stream_viewers")
+    .upsert(
+      { stream_id: streamId, viewer_id: viewerId, last_seen: new Date().toISOString() },
+      { onConflict: "stream_id,viewer_id" },
+    );
+}
+
+export async function fetchViewerCount(streamId: string): Promise<number> {
+  const { count, error } = await sb
+    .from("stream_viewers")
+    .select("id", { count: "exact", head: true })
+    .eq("stream_id", streamId)
+    .gte("last_seen", new Date(Date.now() - 45_000).toISOString());
+  if (error) return 0;
+  return count ?? 0;
+}

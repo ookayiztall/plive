@@ -280,3 +280,34 @@ ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS favicon_url text DEFAU
 
 -- Add homepage order to site_settings
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS homepage_order text[] DEFAULT '{hero,categories,online,featured,channels}';
+
+-- ============================================
+-- REAL-TIME VIEWER TRACKING
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS public.stream_viewers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  stream_id uuid NOT NULL REFERENCES public.streams(id) ON DELETE CASCADE,
+  viewer_id text NOT NULL,
+  last_seen timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (stream_id, viewer_id)
+);
+
+ALTER TABLE public.stream_viewers ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert/select (for anonymous heartbeats)
+DO $$ BEGIN
+  CREATE POLICY "anyone can track viewers" ON public.stream_viewers FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE INDEX IF NOT EXISTS stream_viewers_stream_idx ON public.stream_viewers(stream_id);
+CREATE INDEX IF NOT EXISTS stream_viewers_last_seen_idx ON public.stream_viewers(last_seen);
+
+-- Cleanup function: remove stale viewers (not seen in 45 seconds)
+CREATE OR REPLACE FUNCTION public.cleanup_stale_viewers()
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  DELETE FROM public.stream_viewers WHERE last_seen < now() - interval '45 seconds';
+END;
+$$;
