@@ -21,13 +21,15 @@ export function Footer() {
       <div className="mx-auto w-full max-w-[1400px] px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           {settings?.logoUrl ? (
-            <img src={settings.logoUrl} alt="" className="size-8 rounded-md object-cover" />
+            <img src={settings.logoUrl} alt={settings.siteName || "PLive"} className="h-8 w-auto object-contain" />
           ) : (
-            <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Radio className="size-4" aria-hidden />
-            </span>
+            <>
+              <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
+                <Radio className="size-4" aria-hidden />
+              </span>
+              <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
+            </>
           )}
-          <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
         </div>
 
         <div className="mt-8 grid gap-10 border-t border-border pt-8 lg:grid-cols-[1fr_2fr]">
