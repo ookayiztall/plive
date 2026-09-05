@@ -68,6 +68,10 @@ export function VideoPlayer({
       const hls = new Hls({
         startLevel: -1,
         capLevelToPlayerSize: true,
+        liveSyncDurationCount: 3,
+        liveMaxLatencyDurationCount: 6,
+        maxBufferLength: 6,
+        maxMaxBufferLength: 10,
       });
       hlsRef.current = hls;
 
