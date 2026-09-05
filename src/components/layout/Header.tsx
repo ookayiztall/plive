@@ -16,6 +16,23 @@ import { useSession } from "@/lib/session";
 import { fetchSettings } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
+const SETTINGS_CACHE_KEY = "plive_settings_cache";
+
+function getCachedSettings(): { logoUrl?: string; faviconUrl?: string; siteName?: string } {
+  try {
+    const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function cacheSettings(data: { logoUrl?: string; faviconUrl?: string; siteName?: string }) {
+  try {
+    localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data));
+  } catch { /* noop */ }
+}
+
 const navItems = [
   { label: "Home", to: "/" as const },
   { label: "Live", to: "/live" as const },
@@ -23,20 +40,25 @@ const navItems = [
 ];
 
 function Logo() {
+  const cached = getCachedSettings();
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
   });
+
+  const logoUrl = settings?.logoUrl ?? cached.logoUrl ?? null;
+  const siteName = settings?.siteName ?? cached.siteName ?? "PLive";
+
   return (
     <Link to="/" className="flex items-center gap-2">
-      {settings?.logoUrl ? (
-        <img src={settings.logoUrl} alt={settings.siteName || "PLive"} className="h-8 w-auto object-contain" />
+      {logoUrl ? (
+        <img src={logoUrl} alt={siteName} className="h-8 w-auto object-contain" />
       ) : (
         <>
           <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Radio className="size-4" aria-hidden />
           </span>
-          <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
+          <span className="font-display text-xl font-bold tracking-wide">{siteName}</span>
         </>
       )}
     </Link>
@@ -46,22 +68,36 @@ function Logo() {
 export function Header() {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useSession();
+  const cached = getCachedSettings();
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
   });
 
+  // Cache settings for instant load on next refresh
   useEffect(() => {
-    if (settings?.faviconUrl) {
+    if (settings) {
+      const cache: { logoUrl?: string; faviconUrl?: string; siteName?: string } = {};
+      if (settings.logoUrl) cache.logoUrl = settings.logoUrl;
+      if (settings.faviconUrl) cache.faviconUrl = settings.faviconUrl;
+      cache.siteName = settings.siteName;
+      cacheSettings(cache);
+    }
+  }, [settings]);
+
+  // Apply favicon immediately from cache, then update from API
+  useEffect(() => {
+    const faviconUrl = settings?.faviconUrl ?? cached.faviconUrl;
+    if (faviconUrl) {
       let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
       if (!link) {
         link = document.createElement("link");
         link.rel = "icon";
         document.head.appendChild(link);
       }
-      link.href = settings.faviconUrl;
+      link.href = faviconUrl;
     }
-  }, [settings?.faviconUrl]);
+  }, [settings?.faviconUrl, cached.faviconUrl]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
