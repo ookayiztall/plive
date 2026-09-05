@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Radio,
@@ -13,7 +14,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/session";
+import { fetchSettings } from "@/lib/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const SETTINGS_CACHE_KEY = "plive_settings_cache";
+function getCachedSettings(): { logoUrl?: string; siteName?: string } {
+  try {
+    const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
 
 const items: Array<{ label: string; to: string; icon: LucideIcon; exact?: boolean }> = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard, exact: true },
@@ -25,6 +35,9 @@ const items: Array<{ label: string; to: string; icon: LucideIcon; exact?: boolea
 
 function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const cached = getCachedSettings();
+  const { data: settings } = useQuery({ queryKey: ["settings"], queryFn: fetchSettings });
+  const siteName = settings?.siteName ?? cached.siteName ?? "PLive";
 
   return (
     <div className="flex h-full flex-col bg-sidebar">
@@ -32,7 +45,7 @@ function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
         <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
           <Radio className="size-4" aria-hidden />
         </span>
-        <span className="font-display text-lg font-bold tracking-wide">PLIVE ADMIN</span>
+        <span className="font-display text-lg font-bold tracking-wide">{siteName} Admin</span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {items.map((item) => {
