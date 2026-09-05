@@ -23,7 +23,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
 
   return (
     <section
-      className="hero-fullbleed relative h-[320px] overflow-hidden rounded-[20px] border border-border sm:h-[400px]"
+      className="hero-fullbleed relative h-[380px] overflow-hidden rounded-[20px] border border-border sm:h-[480px]"
       aria-roledescription="carousel"
       aria-label="Featured events"
     >
@@ -72,7 +72,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
         </div>
       ))}
 
-      <div className="absolute right-4 bottom-4 flex gap-2">
+      <div className="absolute right-5 bottom-5 flex gap-2 sm:right-8 sm:bottom-8">
         <button
           type="button"
           aria-label="Previous slide"
@@ -91,7 +91,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
         </button>
       </div>
 
-      <div className="absolute bottom-6 left-5 flex gap-1.5 sm:left-8">
+      <div className="absolute bottom-5 left-5 flex gap-1.5 sm:bottom-8 sm:left-8">
         {slides.map((slide, i) => (
           <button
             key={slide.id}

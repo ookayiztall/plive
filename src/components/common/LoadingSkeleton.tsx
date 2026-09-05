@@ -24,7 +24,7 @@ export function CardGridSkeleton({ count = 4 }: { count?: number }) {
 }
 
 export function HeroSkeleton() {
-  return <Skeleton className="h-[300px] w-full rounded-lg sm:h-[380px]" />;
+  return <Skeleton className="h-[360px] w-full rounded-lg sm:h-[460px]" />;
 }
 
 export function CategoryRowSkeleton() {
