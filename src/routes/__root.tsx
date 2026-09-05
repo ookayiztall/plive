@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { SessionProvider } from "../lib/session";
@@ -122,6 +122,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    const handler = (e: ErrorEvent) => {
+      if (e.message?.includes("startTime")) e.stopImmediatePropagation();
+    };
+    window.addEventListener("error", handler, true);
+    return () => window.removeEventListener("error", handler, true);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

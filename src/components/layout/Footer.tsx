@@ -92,7 +92,17 @@ export function Footer() {
 
         <div className="mt-10 border-t border-border pt-8 text-center">
           <p className="text-sm font-semibold">{settings?.footerCtaText}</p>
-          {settings?.footerCtaLabel && (
+          {settings?.footerCtaLabel && settings?.telegramUsername ? (
+            <a
+              href={`https://t.me/${settings.telegramUsername.replace("@", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-info hover:underline"
+            >
+              {settings.footerCtaLabel}
+              <Send className="size-3.5" aria-hidden />
+            </a>
+          ) : settings?.footerCtaLabel ? (
             <a
               href={settings.footerCtaUrl}
               className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-info hover:underline"
@@ -100,7 +110,7 @@ export function Footer() {
               {settings.footerCtaLabel}
               <Send className="size-3.5" aria-hidden />
             </a>
-          )}
+          ) : null}
           <p className="mt-6 text-xs text-muted-foreground">{settings?.copyrightText}</p>
         </div>
       </div>
