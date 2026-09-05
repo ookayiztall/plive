@@ -21,7 +21,7 @@ export function StreamCard({ stream, className }: { stream: Stream; className?: 
       to="/watch/$slug"
       params={{ slug: stream.slug }}
       className={cn(
-        "group flex w-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-colors hover:border-primary/50",
+        "group flex w-full flex-col overflow-hidden rounded-[20px] border border-border bg-surface shadow-card transition-colors hover:border-primary/50",
         className,
       )}
     >

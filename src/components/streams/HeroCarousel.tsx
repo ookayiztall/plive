@@ -23,7 +23,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
 
   return (
     <section
-      className="relative h-[320px] overflow-hidden rounded-lg border border-border sm:h-[400px]"
+      className="relative h-[320px] overflow-hidden rounded-[20px] border border-border sm:h-[400px]"
       aria-roledescription="carousel"
       aria-label="Featured events"
     >
