@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/lib/session";
+
+const RATE_LIMIT_MS = 3000;
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -26,13 +28,20 @@ function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const { signUp } = useSession();
   const navigate = useNavigate();
+  const lastSubmitRef = useRef(0);
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (Date.now() - lastSubmitRef.current < RATE_LIMIT_MS) {
+      setError("Please wait before trying again.");
+      return;
+    }
+    lastSubmitRef.current = Date.now();
 
     if (form.name.trim().length < 2) {
       setError("Display name is too short.");
@@ -56,11 +65,11 @@ function RegisterPage() {
     setSubmitting(false);
 
     if (result.error) {
-      setError(result.error);
+      setError("Could not create account. Try a different email.");
     } else {
       setSuccess(true);
     }
-  };
+  }, [form.name, form.email, form.password, form.confirm, signUp]);
 
   if (success) {
     return (

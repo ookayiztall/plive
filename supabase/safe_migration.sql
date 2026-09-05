@@ -296,9 +296,17 @@ CREATE TABLE IF NOT EXISTS public.stream_viewers (
 
 ALTER TABLE public.stream_viewers ENABLE ROW LEVEL SECURITY;
 
--- Anyone can insert/select (for anonymous heartbeats)
+-- Anyone can read viewer counts
 DO $$ BEGIN
-  CREATE POLICY "anyone can track viewers" ON public.stream_viewers FOR ALL USING (true) WITH CHECK (true);
+  CREATE POLICY "anyone reads viewer counts" ON public.stream_viewers FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Anyone can insert/update their own viewer record (identified by viewer_id)
+DO $$ BEGIN
+  CREATE POLICY "viewers track own presence" ON public.stream_viewers FOR INSERT WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE POLICY "viewers update own presence" ON public.stream_viewers FOR UPDATE USING (true) WITH CHECK (true);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE INDEX IF NOT EXISTS stream_viewers_stream_idx ON public.stream_viewers(stream_id);

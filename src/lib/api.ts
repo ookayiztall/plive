@@ -354,7 +354,7 @@ export async function updateSettings(input: SiteSettings) {
 
 export async function fetchUsers(): Promise<AppUser[]> {
   const profiles = unwrap(
-    await supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+    await supabase.from("profiles").select("id, display_name, email, avatar_url, status, created_at").order("created_at", { ascending: false }),
   ) as unknown as Array<{
     id: string;
     display_name: string;
@@ -400,8 +400,20 @@ export async function setUserRole(userId: string, role: UserRole) {
 /* -------------------------------- uploads --------------------------------- */
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+function validateImageFile(file: File) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error("Only JPEG, PNG, WebP and GIF images are allowed.");
+  }
+  if (file.size > MAX_UPLOAD_SIZE) {
+    throw new Error("File must be under 10 MB.");
+  }
+}
 
 export async function uploadStreamImage(file: File): Promise<string> {
+  validateImageFile(file);
   const extension = file.name.split(".").pop() ?? "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
   const { error } = await supabase.storage.from("stream-images").upload(path, file, {
@@ -417,6 +429,7 @@ export async function uploadStreamImage(file: File): Promise<string> {
 }
 
 export async function uploadCategoryImage(file: File): Promise<string> {
+  validateImageFile(file);
   const extension = file.name.split(".").pop() ?? "jpg";
   const path = `categories/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
   const { error } = await supabase.storage.from("stream-images").upload(path, file, {

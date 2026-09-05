@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSession } from "@/lib/session";
+
+const MIN_PASSWORD_LENGTH = 8;
+const RATE_LIMIT_MS = 2000;
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -27,17 +30,24 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const { signIn } = useSession();
   const navigate = useNavigate();
+  const lastSubmitRef = useRef(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (Date.now() - lastSubmitRef.current < RATE_LIMIT_MS) {
+      setError("Please wait before trying again.");
+      return;
+    }
+    lastSubmitRef.current = Date.now();
 
     if (!email.includes("@")) {
       setError("Enter a valid email address.");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
 
@@ -46,11 +56,11 @@ function LoginPage() {
     setSubmitting(false);
 
     if (result.error) {
-      setError(result.error);
+      setError("Invalid email or password.");
     } else {
       navigate({ to: "/" });
     }
-  };
+  }, [email, password, signIn, navigate]);
 
   return (
     <AuthShell

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/lib/session";
+
+const RATE_LIMIT_MS = 5000;
 
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
@@ -25,10 +27,17 @@ function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { sendPasswordResetEmail } = useSession();
+  const lastSubmitRef = useRef(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (Date.now() - lastSubmitRef.current < RATE_LIMIT_MS) {
+      setError("Please wait before trying again.");
+      return;
+    }
+    lastSubmitRef.current = Date.now();
 
     if (!email.includes("@")) {
       setError("Enter a valid email address.");
@@ -40,11 +49,11 @@ function ForgotPasswordPage() {
     setSubmitting(false);
 
     if (result.error) {
-      setError(result.error);
+      setError("If an account exists, a reset link has been sent.");
     } else {
       setSent(true);
     }
-  };
+  }, [email, sendPasswordResetEmail]);
 
   return (
     <AuthShell
