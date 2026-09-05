@@ -186,12 +186,6 @@
   }
 }
 
-.hero-fullbleed {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  border-radius: 20px;
-}
-
 .hero-zoom {
   animation: hero-zoom-out 7s ease-out forwards;
 }
