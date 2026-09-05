@@ -152,9 +152,15 @@ export function VideoPlayer({
 
   const toggleFullscreen = () => {
     const node = containerRef.current;
+    const video = videoRef.current;
     if (!node) return;
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void node.requestFullscreen?.();
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else if (node.requestFullscreen) {
+      void node.requestFullscreen();
+    } else if (video && "webkitEnterFullscreen" in video) {
+      void (video as HTMLVideoElement & { webkitEnterFullscreen: () => void }).webkitEnterFullscreen();
+    }
   };
 
   return (
