@@ -1,12 +1,17 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Radio } from "lucide-react";
 import type { Stream } from "@/types";
-import { getCategoryById } from "@/data/categories";
+import { fetchCategories } from "@/lib/api";
 import { LiveBadge } from "@/components/common/badges";
 import { cn } from "@/lib/utils";
 
 export function ChannelCard({ stream, className }: { stream: Stream; className?: string }) {
-  const category = getCategoryById(stream.categoryId);
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => fetchCategories(),
+  });
+  const category = categories.find((c) => c.id === stream.categoryId);
   const isLive = stream.status === "live";
 
   return (
