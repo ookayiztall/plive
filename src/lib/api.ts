@@ -306,6 +306,8 @@ export async function fetchSettings(): Promise<SiteSettings> {
     footer_cta_label: string;
     footer_cta_url: string;
     telegram_username: string;
+    logo_url: string | null;
+    favicon_url: string | null;
   } | null;
   return {
     siteName: row?.site_name ?? "PLive",
@@ -317,6 +319,8 @@ export async function fetchSettings(): Promise<SiteSettings> {
     footerCtaLabel: row?.footer_cta_label ?? "",
     footerCtaUrl: row?.footer_cta_url ?? "#",
     telegramUsername: row?.telegram_username ?? "",
+    logoUrl: row?.logo_url ?? null,
+    faviconUrl: row?.favicon_url ?? null,
   };
 }
 
@@ -334,6 +338,8 @@ export async function updateSettings(input: SiteSettings) {
         footer_cta_label: input.footerCtaLabel,
         footer_cta_url: input.footerCtaUrl,
         telegram_username: input.telegramUsername,
+        logo_url: input.logoUrl,
+        favicon_url: input.faviconUrl,
       })
       .eq("id", true)
       .select()

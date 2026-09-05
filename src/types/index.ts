@@ -84,4 +84,6 @@ export interface SiteSettings {
   footerCtaLabel: string;
   footerCtaUrl: string;
   telegramUsername: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
 }

@@ -273,3 +273,7 @@ ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS image_url text DEFAULT NU
 
 -- Add telegram_username to site_settings
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS telegram_username text DEFAULT '';
+
+-- Add logo and favicon to site_settings
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS logo_url text DEFAULT NULL;
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS favicon_url text DEFAULT NULL;

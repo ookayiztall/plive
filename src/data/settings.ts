@@ -10,4 +10,6 @@ export const mockSettings: SiteSettings = {
   footerCtaLabel: "Contact us here",
   footerCtaUrl: "#",
   telegramUsername: "",
+  logoUrl: null,
+  faviconUrl: null,
 };

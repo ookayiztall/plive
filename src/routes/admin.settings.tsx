@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { fetchSettings, updateSettings } from "@/lib/api";
+import { fetchSettings, updateSettings, uploadStreamImage } from "@/lib/api";
 import type { SiteSettings } from "@/types";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -36,6 +36,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function AdminSettings() {
   const queryClient = useQueryClient();
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [faviconUploading, setFaviconUploading] = useState(false);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
@@ -110,20 +112,89 @@ function AdminSettings() {
         </Section>
 
         <Section title="Branding">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {["Logo", "Favicon"].map((label) => (
-              <div key={label} className="space-y-1.5">
-                <Label>{label}</Label>
-                <button
+          <div className="space-y-1.5">
+            <Label>Logo</Label>
+            {form.logoUrl ? (
+              <div className="relative">
+                <img src={form.logoUrl} alt="Logo" className="h-16 w-auto rounded-md object-contain" />
+                <Button
                   type="button"
-                  onClick={() => toast.info("Image uploads coming soon.")}
-                  className="flex w-full flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface-2/50 px-4 py-6 text-xs text-muted-foreground hover:border-primary/50"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={() => set("logoUrl", null)}
                 >
-                  <ImageUp className="size-5" aria-hidden />
-                  Upload {label.toLowerCase()}
-                </button>
+                  Remove
+                </Button>
               </div>
-            ))}
+            ) : (
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface-2/50 px-4 py-6 text-xs text-muted-foreground hover:border-primary/50">
+                <ImageUp className="size-5" aria-hidden />
+                {logoUploading ? "Uploading..." : "Upload logo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={logoUploading}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setLogoUploading(true);
+                    try {
+                      const url = await uploadStreamImage(file);
+                      set("logoUrl", url);
+                    } catch (err) {
+                      toast.error((err as Error).message);
+                    } finally {
+                      setLogoUploading(false);
+                    }
+                  }}
+                />
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">Shown in the header and footer next to the site name.</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Favicon</Label>
+            {form.faviconUrl ? (
+              <div className="relative">
+                <img src={form.faviconUrl} alt="Favicon" className="h-10 w-10 rounded-md object-contain" />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={() => set("faviconUrl", null)}
+                >
+                  Remove
+                </Button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface-2/50 px-4 py-6 text-xs text-muted-foreground hover:border-primary/50">
+                <ImageUp className="size-5" aria-hidden />
+                {faviconUploading ? "Uploading..." : "Upload favicon"}
+                <input
+                  type="file"
+                  accept="image/*,.ico,.png,.svg"
+                  className="hidden"
+                  disabled={faviconUploading}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setFaviconUploading(true);
+                    try {
+                      const url = await uploadStreamImage(file);
+                      set("faviconUrl", url);
+                    } catch (err) {
+                      toast.error((err as Error).message);
+                    } finally {
+                      setFaviconUploading(false);
+                    }
+                  }}
+                />
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">Browser tab icon. If empty, the default PLive icon is used.</p>
           </div>
         </Section>
 
