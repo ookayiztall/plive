@@ -226,6 +226,14 @@ export function StreamForm({ stream }: { stream?: Stream | undefined }) {
                 ))}
               </SelectContent>
             </Select>
+            {form.categoryId && (() => {
+              const selected = categories.find((c) => c.id === form.categoryId);
+              return selected?.group ? (
+                <p className="text-xs text-muted-foreground">
+                  Tag shown: <span className="font-medium text-foreground">{selected.group}</span>
+                </p>
+              ) : null;
+            })()}
           </div>
         </Section>
 

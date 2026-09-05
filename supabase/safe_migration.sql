@@ -263,3 +263,13 @@ INSERT INTO public.stream_sources (stream_id, name, description, type, url, prio
 SELECT s.id, 'Stream 2', 'Backup source', 'hls', 'https://test-streams.mux.dev/pts_shift/master.m3u8', 2, false
 FROM public.streams s
 WHERE NOT EXISTS (SELECT 1 FROM public.stream_sources ss WHERE ss.stream_id = s.id AND ss.priority = 2);
+
+-- ============================================
+-- CATEGORY IMAGES + TELEGRAM + SETTINGS
+-- ============================================
+
+-- Add image_url to categories
+ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS image_url text DEFAULT NULL;
+
+-- Add telegram_username to site_settings
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS telegram_username text DEFAULT '';

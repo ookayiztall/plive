@@ -165,12 +165,14 @@ function WatchPage() {
                 <Countdown targetIso={stream.startsAt} />
               </span>
             )}
+            {/* Viewer count hidden — enable when real-time tracking is implemented
             {stream.viewers !== null && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
                 <Users className="size-3.5" aria-hidden />
                 {stream.viewers} watching
               </span>
             )}
+            */}
             {user && (
               <Button
                 variant="secondary"

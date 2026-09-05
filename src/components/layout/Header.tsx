@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Menu, X, LogOut, User, LayoutDashboard, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSession } from "@/lib/session";
+import { fetchSettings } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -21,12 +23,16 @@ const navItems = [
 ];
 
 function Logo() {
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: fetchSettings,
+  });
   return (
     <Link to="/" className="flex items-center gap-2">
       <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
         <Radio className="size-4" aria-hidden />
       </span>
-      <span className="font-display text-xl font-bold tracking-wide">PLIVE</span>
+      <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
     </Link>
   );
 }

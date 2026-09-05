@@ -23,6 +23,7 @@ type CategoryRow = {
   group: string;
   icon: string;
   color: string;
+  image_url: string | null;
   sort_order: number;
   is_active: boolean;
 };
@@ -71,6 +72,7 @@ export const mapCategory = (row: CategoryRow): Category => ({
   group: row.group,
   icon: row.icon,
   color: row.color,
+  imageUrl: row.image_url ?? null,
   sortOrder: row.sort_order,
   isActive: row.is_active,
 });
@@ -133,13 +135,14 @@ export type CategoryInput = Omit<Category, "id">;
 
 export async function createCategory(input: CategoryInput) {
   unwrap(
-    await supabase.from("categories").insert({
+    await sb.from("categories").insert({
       name: input.name,
       slug: input.slug,
       description: input.description,
       group: input.group,
       icon: input.icon,
       color: input.color,
+      image_url: input.imageUrl,
       sort_order: input.sortOrder,
       is_active: input.isActive,
     }).select().single(),
@@ -148,7 +151,7 @@ export async function createCategory(input: CategoryInput) {
 
 export async function updateCategory(id: string, input: Partial<CategoryInput>) {
   unwrap(
-    await supabase
+    await sb
       .from("categories")
       .update({
         ...(input.name !== undefined && { name: input.name }),
@@ -157,6 +160,7 @@ export async function updateCategory(id: string, input: Partial<CategoryInput>) 
         ...(input.group !== undefined && { group: input.group }),
         ...(input.icon !== undefined && { icon: input.icon }),
         ...(input.color !== undefined && { color: input.color }),
+        ...(input.imageUrl !== undefined && { image_url: input.imageUrl }),
         ...(input.sortOrder !== undefined && { sort_order: input.sortOrder }),
         ...(input.isActive !== undefined && { is_active: input.isActive }),
       })
@@ -391,6 +395,21 @@ const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 export async function uploadStreamImage(file: File): Promise<string> {
   const extension = file.name.split(".").pop() ?? "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+  const { error } = await supabase.storage.from("stream-images").upload(path, file, {
+    cacheControl: "31536000",
+    upsert: false,
+  });
+  if (error) throw new Error(error.message);
+  const { data, error: signError } = await supabase.storage
+    .from("stream-images")
+    .createSignedUrl(path, TEN_YEARS);
+  if (signError || !data) throw new Error(signError?.message ?? "Could not create image link");
+  return data.signedUrl;
+}
+
+export async function uploadCategoryImage(file: File): Promise<string> {
+  const extension = file.name.split(".").pop() ?? "jpg";
+  const path = `categories/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
   const { error } = await supabase.storage.from("stream-images").upload(path, file, {
     cacheControl: "31536000",
     upsert: false,

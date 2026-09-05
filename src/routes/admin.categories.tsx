@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, MoreHorizontal, SearchX } from "lucide-react";
+import { Plus, MoreHorizontal, SearchX, ImageUp } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
@@ -26,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { fetchCategories, createCategory, updateCategory, deleteCategory, type CategoryInput } from "@/lib/api";
+import { fetchCategories, createCategory, updateCategory, deleteCategory, uploadCategoryImage, type CategoryInput } from "@/lib/api";
 import type { Category } from "@/types";
 
 export const Route = createFileRoute("/admin/categories")({
@@ -58,15 +58,61 @@ function CategoryForm({
     group: category?.group ?? "",
     icon: category?.icon ?? "Trophy",
     color: category?.color ?? "oklch(0.66 0.16 300)",
+    imageUrl: category?.imageUrl ?? null,
     sortOrder: category?.sortOrder ?? 1,
     isActive: category?.isActive ?? true,
   });
+  const [uploading, setUploading] = useState(false);
 
   const set = <K extends keyof CategoryInput>(key: K, value: CategoryInput[K]) =>
     setForm((prev: CategoryInput) => ({ ...prev, [key]: value }));
 
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const url = await uploadCategoryImage(file);
+      set("imageUrl", url);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label>Category image</Label>
+        {form.imageUrl ? (
+          <div className="relative">
+            <img src={form.imageUrl} alt="Category" className="h-32 w-full rounded-md object-cover" />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2"
+              onClick={() => set("imageUrl", null)}
+            >
+              Remove
+            </Button>
+          </div>
+        ) : (
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface-2/50 px-4 py-8 text-xs text-muted-foreground hover:border-primary/50">
+            <ImageUp className="size-5" aria-hidden />
+            {uploading ? "Uploading..." : "Upload category image"}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+              }}
+            />
+          </label>
+        )}
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="cat-name">Name</Label>
@@ -193,16 +239,24 @@ function AdminCategories() {
                 className="rounded-lg border border-border bg-surface p-4"
               >
                 <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-                  <span
-                    className="grid size-10 shrink-0 place-items-center rounded-md text-xs font-bold"
-                    style={{
-                      backgroundColor: `color-mix(in oklab, ${category.color} 22%, transparent)`,
-                      color: category.color,
-                    }}
-                    aria-hidden
-                  >
-                    {category.name.slice(0, 2).toUpperCase()}
-                  </span>
+                  {category.imageUrl ? (
+                    <img
+                      src={category.imageUrl}
+                      alt={category.name}
+                      className="size-10 shrink-0 rounded-md object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="grid size-10 shrink-0 place-items-center rounded-md text-xs font-bold"
+                      style={{
+                        backgroundColor: `color-mix(in oklab, ${category.color} 22%, transparent)`,
+                        color: category.color,
+                      }}
+                      aria-hidden
+                    >
+                      {category.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{category.name}</p>
                     <p className="truncate text-xs text-muted-foreground">/{category.slug}</p>

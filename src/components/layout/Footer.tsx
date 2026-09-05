@@ -23,7 +23,7 @@ export function Footer() {
           <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Radio className="size-4" aria-hidden />
           </span>
-          <span className="font-display text-xl font-bold tracking-wide">PLive</span>
+          <span className="font-display text-xl font-bold tracking-wide">{settings?.siteName || "PLive"}</span>
         </div>
 
         <div className="mt-8 grid gap-10 border-t border-border pt-8 lg:grid-cols-[1fr_2fr]">

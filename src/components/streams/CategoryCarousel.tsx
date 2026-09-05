@@ -44,12 +44,20 @@ export function CategoryCard({
           : "border-border hover:border-primary/50 hover:bg-surface-2",
       )}
     >
-      <span
-        className="grid size-9 shrink-0 place-items-center rounded-md"
-        style={{ backgroundColor: `color-mix(in oklab, ${category.color} 22%, transparent)` }}
-      >
-        <Icon className="size-4" style={{ color: category.color }} aria-hidden />
-      </span>
+      {category.imageUrl ? (
+        <img
+          src={category.imageUrl}
+          alt={category.name}
+          className="size-9 shrink-0 rounded-md object-cover"
+        />
+      ) : (
+        <span
+          className="grid size-9 shrink-0 place-items-center rounded-md"
+          style={{ backgroundColor: `color-mix(in oklab, ${category.color} 22%, transparent)` }}
+        >
+          <Icon className="size-4" style={{ color: category.color }} aria-hidden />
+        </span>
+      )}
       <span className="min-w-0">
         <span className="block truncate text-sm font-semibold">{category.name}</span>
         <span className="block truncate text-[11px] text-muted-foreground">{category.group}</span>

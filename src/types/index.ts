@@ -17,6 +17,7 @@ export interface Category {
   group: string;
   icon: string;
   color: string;
+  imageUrl: string | null;
   sortOrder: number;
   isActive: boolean;
 }
