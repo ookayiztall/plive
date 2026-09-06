@@ -46,7 +46,7 @@ export function HeroCarousel({ slides }: { slides: FeaturedSlide[] }) {
               i === index && "hero-zoom",
             )}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-0 flex items-end sm:items-center">
             <div className="mx-auto flex w-full max-w-[1400px] flex-col items-start gap-3 px-5 pb-20 sm:px-8 sm:pb-0">
               <div className="flex items-center gap-2">
